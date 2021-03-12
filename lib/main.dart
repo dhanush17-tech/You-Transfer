@@ -40,15 +40,136 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    controller = PageController(initialPage: 0);
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> item = <Widget>[];
+    uploadtask.forEach((fb.UploadTask element) {
+      final index = uploadtask.indexOf(element);
+      final Widget man = Column(
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: StreamBuilder<fb.UploadTaskSnapshot>(
+                stream: element?.onStateChanged,
+                builder: (context, snapshot) {
+                  var man_event;
+
+                  final event = snapshot?.data;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      man_event = event;
+                    });
+                  });
+                  // Default as 0
+                  double progressPercent = event != null
+                      ? event.bytesTransferred / event.totalBytes * 1
+                      : 0;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 10,
+                      ),
+                      progressPercent == 0
+                          ? CircularPercentIndicator(
+                              radius: 20.0,
+                              lineWidth: 2.0,
+                              animation: false,
+                              percent: 0,
+                              circularStrokeCap: CircularStrokeCap.round,
+                              progressColor: Colors.indigo,
+                            )
+                          : CircularPercentIndicator(
+                              radius: 20.0,
+                              lineWidth: 2.0,
+                              animation: false,
+                              percent: progressPercent,
+                              circularStrokeCap: CircularStrokeCap.round,
+                              progressColor: Colors.indigo,
+                            ),
+                      SizedBox(
+                        width: 12,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Stack(
+                              children: [
+                                Container(
+                                    height: 50,
+                                    width: 145,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 16,
+                                          ),
+                                          child: Text(
+                                            names[index] ?? "",
+                                            style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w500),
+                                          )),
+                                    )),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 36.0),
+                                  child: Text(
+                                    "${filesize(size[index])}" ?? "",
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              width: 42,
+                            ),
+                            event != null
+                                ? event.bytesTransferred / event.totalBytes == 1
+                                    ? Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5.0),
+                                        child: Icon(
+                                          Icons.check_rounded,
+                                          size: 20,
+                                          color: Colors.indigo,
+                                        ))
+                                    : Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5.0),
+                                        child: Icon(
+                                          Icons.check_rounded,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ))
+                                : Padding(
+                                    padding: const EdgeInsets.only(bottom: 5.0),
+                                    child: Icon(
+                                      Icons.check_rounded,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ))
+                          ],
+                        ),
+                      )
+                    ],
+                  );
+                }),
+          ),
+        ],
+      );
+      item.add(man);
+    });
     return Scaffold(
         backgroundColor: Color(4285108466),
         body: Center(
           child: Container(
+              alignment: Alignment.topCenter,
               width: 600,
               height: 600,
               decoration: BoxDecoration(
@@ -69,118 +190,24 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   SizedBox(
-                    width: 20,
+                    width: 8,
                   ),
-                  step2()
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30, bottom: 30),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: item,
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               )),
         ));
-  }
-
-  Widget step2() {
-    return Container(
-        child: Column(
-      children: [
-        Container(
-          width: 250,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 30, bottom: 30),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: names.map((e) {
-                  var index = names.indexOf(e);
-                  return Container(
-                    child: Row(
-                      children: [
-                        // StreamBuilder<fb.UploadTaskSnapshot>(
-                        //     stream: _uploadTask?.onStateChanged,
-                        //     builder: (context, snapshot) {
-                        //       final event = snapshot?.data;
-
-                        //       // Default as 0
-                        //       double progressPercent = event != null
-                        //           ? event.bytesTransferred /
-                        //               event.totalBytes *
-                        //               1
-                        //           : 0;
-
-                        //       if (progressPercent == 100) {
-                        //         return Text('Successfully uploaded file 🎊');
-                        //       } else if (progressPercent == 0) {
-                        //         return SizedBox();
-                        //       } else {
-                        //         return CircularPercentIndicator(
-                        //           radius: 20.0,
-                        //           lineWidth: 2.0,
-                        //           animation: false,
-                        //           percent: 0.7,
-                        //           circularStrokeCap: CircularStrokeCap.round,
-                        //           progressColor: Colors.indigo,
-                        //         );
-                        //       }
-                        //     }),
-                        SizedBox(
-                          width: 12,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    e ?? "",
-                                    style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Text(
-                                    "${filesize(size)}" ?? "",
-                                    style: GoogleFonts.poppins(
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: 70,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 13.0),
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.only(top: 0),
-                                  width: 25,
-                                  height: 25,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.blue),
-                                  child: Icon(
-                                    Icons.check_rounded,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                }).toList()),
-          ),
-        ),
-        SizedBox(
-          height: 15,
-        ),
-        // Text(
-        //   name ?? "",
-        //   style: GoogleFonts.poppins(fontSize: 20),
-        // ),
-      ],
-    ));
   }
 
   Widget step1() {
@@ -244,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ));
   }
 
-  fb.UploadTask _uploadTask;
+  List<fb.UploadTask> uploadtask = <fb.UploadTask>[];
 
   _startFilePicker() async {
     InputElement uploadInput = FileUploadInputElement();
@@ -287,11 +314,12 @@ class _MyHomePageState extends State<MyHomePage> {
     final filePath = "${DateTime.now()}$name";
 
     setState(() {
-      _uploadTask = fb
+      fb.UploadTask upload_progress = fb
           .storage()
           .refFromURL("gs://yousend-474b4.appspot.com")
           .child(filePath)
           .put(imageFile);
+      uploadtask.add(upload_progress);
     });
   }
 
@@ -305,5 +333,4 @@ class _MyHomePageState extends State<MyHomePage> {
   List sizes = [];
   List urls = [];
   List progress = [];
-  PageController controller;
 }
